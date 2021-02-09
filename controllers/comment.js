@@ -35,31 +35,58 @@ exports.createComment = (req, res, next) => {
     // });
 };
 
-exports.getComments = (req, res, next) => {
+// exports.getComments = (req, res, next) => {
+//   const pageSize = +req.query.pagesize;
+//   const currentPage = +req.query.page;
+//   const commentQuery = Comment.find();
+//   let fetchedComments;
+//   if (pageSize && currentPage) {
+//     commentQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+//   }
+//   commentQuery
+//     .then(documents => {
+//       fetchedComments = documents;
+//       return Comment.count();
+//     })
+//     .then(count => {
+//       res.status(200).json({
+//         message: "Comments fetched successfully!",
+//         comments: fetchedComments,
+//         maxComments: count
+//       });
+//     })
+//     .catch(error => {
+//       res.status(500).json({
+//         message: "Fetching Comments failed!"
+//       });
+//     });
+// };
+
+exports.getComments = async (req, res, next) => {
   const pageSize = +req.query.pagesize;
   const currentPage = +req.query.page;
-  const commentQuery = Comment.find();
-  let fetchedComments;
-  if (pageSize && currentPage) {
-    commentQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
-  }
-  commentQuery
-    .then(documents => {
-      fetchedComments = documents;
-      return Comment.count();
-    })
-    .then(count => {
-      res.status(200).json({
-        message: "Comments fetched successfully!",
-        comments: fetchedComments,
-        maxComments: count
-      });
-    })
-    .catch(error => {
-      res.status(500).json({
-        message: "Fetching Comments failed!"
-      });
+  try {
+    const commentQuery = await Comment.find();
+    if (pageSize && currentPage) {
+      commentQuery.skip(pageSize * (currentPage - 1)).limit(pageSize);
+    }
+    commentQuery;
+
+    const totalComment = await Comment.countDocuments();
+
+    res.status(200).json({
+      message: "Comments fetched successfully!",
+      comments: commentQuery,
+      maxComments: totalComment
     });
+
+  } catch (error) {
+    res.status(500).json({
+      message: "Fetching Comments failed!"
+    });
+  }
+
+
 };
 
 // exports.getComment = (req, res, next) => {
